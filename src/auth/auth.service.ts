@@ -34,7 +34,7 @@ export class AuthService {
       role: newUser.role,
     };
     const token = await this.jwtService.signAsync(payload);
-    return { message: 'User registered succesfully', user: newUser, token };
+    return { message: 'User registered successfully', user: newUser, token };
   }
 
   async login(user: LoginDto) {
@@ -55,6 +55,6 @@ export class AuthService {
     };
     const { password, ...userLogged } = userFound;
     const token = await this.jwtService.signAsync(payload);
-    return { message: 'User logged in succesfully', user: userLogged, token };
+    return { message: 'User logged in successfully', user: userLogged, token };
   }
 }

@@ -74,14 +74,8 @@ export class UsersService {
     if (!userFound)
       throw new HttpException('User does not exists', HttpStatus.BAD_REQUEST);
 
-    const hasValidFields = Object.entries(updateUserDto).some(
-      ([key, value]) =>
-        key !== null &&
-        value !== null &&
-        key !== undefined &&
-        value !== undefined &&
-        key !== '' &&
-        value !== '',
+    const hasValidFields = Object.values(updateUserDto).some(
+      (value) => value !== null && value !== undefined && value !== '',
     );
 
     if (!hasValidFields)
@@ -94,7 +88,7 @@ export class UsersService {
     try {
       await this.usersRepository.update({ id }, updates);
       const userUpdated = await this.usersRepository.findOneBy({ id });
-      return { message: 'User updated succesfully', user: userUpdated };
+      return { message: 'User updated successfully', user: userUpdated };
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY')
         throw new HttpException(
@@ -125,6 +119,6 @@ export class UsersService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    return { message: 'User deleted succesfully' };
+    return { message: 'User deleted successfully' };
   }
 }

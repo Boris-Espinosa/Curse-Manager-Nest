@@ -163,17 +163,19 @@ export class CursesService {
     updateCurseDto: UpdateCurseDto,
     clientUser: ClientUser,
   ) {
-    if (clientUser.role !== Role.ADMIN && clientUser.id !== id)
+    const curseFound = await this.cursesRepository.findOneBy({ id });
+
+    if (!curseFound)
+      throw new HttpException(
+        'The curse does not exists',
+        HttpStatus.NOT_FOUND,
+      );
+
+    if (clientUser.role !== Role.ADMIN && clientUser.id !== curseFound.user_id)
       throw new UnauthorizedException();
 
-    const hasValidFields = Object.entries(updateCurseDto).some(
-      ([key, value]) =>
-        key !== null &&
-        value !== null &&
-        key !== undefined &&
-        value !== undefined &&
-        key !== '' &&
-        value !== '',
+    const hasValidFields = Object.values(updateCurseDto).some(
+      (value) => value !== null && value !== undefined && value !== '',
     );
 
     if (!hasValidFields)
@@ -182,26 +184,15 @@ export class CursesService {
         HttpStatus.BAD_REQUEST,
       );
 
-    const curseFound = await this.cursesRepository.findOneBy({ id });
-
-    if (!curseFound)
-      throw new HttpException(
-        'The curse does not exists',
-        HttpStatus.NOT_FOUND,
-      );
-
     const updates = { ...updateCurseDto };
     await this.cursesRepository.update({ id }, updates);
 
     const curseUpdated = await this.cursesRepository.findOneBy({ id });
 
-    return { message: 'Curse updated succesfully', curse: curseUpdated };
+    return { message: 'Curse updated successfully', curse: curseUpdated };
   }
 
   async remove(id: number, clientUser: ClientUser) {
-    if (clientUser.role !== Role.ADMIN && clientUser.id !== id)
-      throw new UnauthorizedException();
-
     const curseFound = await this.cursesRepository.findOneBy({ id });
 
     if (!curseFound)
@@ -209,6 +200,9 @@ export class CursesService {
         'The curse does not exists',
         HttpStatus.NOT_FOUND,
       );
+
+    if (clientUser.role !== Role.ADMIN && clientUser.id !== curseFound.user_id)
+      throw new UnauthorizedException();
 
     const affected = await this.cursesRepository.delete({ id });
 
